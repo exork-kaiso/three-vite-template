@@ -1,0 +1,15 @@
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #111;
+}
+
+/* canvas は inline 要素扱いだと行ボックスの余白が下に出るため block にする。
+   高さは vh ではなく dvh。モバイルのアドレスバー開閉に追従させる。 */
+#scene {
+  display: block;
+  width: 100vw;
+  height: 100dvh;
+}
