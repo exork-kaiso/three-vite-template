@@ -1,0 +1,29 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Playwright MCP がブラウザ確認時にスナップショットやスクリーンショットを
+# 書き出す先。確認のたびに生成される使い捨ての出力なので追跡しない。
+# 2026-09-21、HMR のフルリロード確認で実際に git status に現れたため追加。
+.playwright-mcp/

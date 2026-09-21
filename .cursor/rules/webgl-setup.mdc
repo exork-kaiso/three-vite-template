@@ -1,0 +1,26 @@
+---
+description: pnpm + Vite + Three.js の環境構築手順、およびシーンの初期化・破棄で踏むと壊れる箇所
+globs: ["src/scene.ts", "src/main.ts", "vite.config.ts", "tsconfig.json", "package.json"]
+alwaysApply: false
+---
+
+# WebGL 環境構築の手順書
+
+手順の実体は [docs/webgl-setup-guide.md](../../docs/webgl-setup-guide.md) にある。
+重複管理を避けるため、このファイルには内容を書かない。
+
+次の作業に入る前に手順書を読むこと。
+
+- 新規プロジェクトを同じ構成で立ち上げる
+- `createScene()` の初期化・破棄まわりを変更する
+- three の import を追加する
+- リサイズ処理、色空間、トーンマップを変更する
+- `vite.config.ts` や `tsconfig.json` を新規作成・変更する
+
+## 特に事故が多い点（詳細は手順書 6 章）
+
+1. HMR はフルリロード前提。`import.meta.hot.accept()` を足すなら `dispose()` を呼ばないと多重化する
+2. リサイズは `window` ではなく canvas を `ResizeObserver` で監視する
+3. `examples/jsm` からの import は `.js` 拡張子まで書く（three 本体は名前付き import で統一）
+4. geometry / material / texture は明示的に `dispose()` する（GC 対象外）
+5. `WebGLRenderer` の既定はトーンマップ無し。強い光源では白飛びする

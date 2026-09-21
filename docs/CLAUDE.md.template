@@ -1,0 +1,98 @@
+<!-- このファイルはテンプレート用。リポジトリのルートに CLAUDE.md として
+     配置して使う（本文中の相対リンクはルート基準）。 -->
+
+# <project-name>
+
+Vite + TypeScript + Three.js で全画面 canvas 1 枚に描く WebGL 作品。
+
+**このリポジトリにはまだソースコードが無い。** 置いてあるのは手順書と規約、
+それに `public/favicon.png` だけで、`index.html` / `src/` / `package.json` /
+`tsconfig.json` / `.gitignore` はどれも未生成。`public/favicon.png` は
+プレースホルダなので、作品ごとに差し替える。
+
+最初にやることは [docs/webgl-setup-guide.md](docs/webgl-setup-guide.md) の
+2 章から 5 章を順に実行して、環境とコードの骨格を作ること。生成が済んだら
+このファイルの「構成」節を実物に合わせて書き直し、この前置きを消す。
+
+## セットアップ
+
+手順書 2〜3 章の要約。詳細と各判断の根拠は手順書側にある。
+
+```bash
+pnpm create vite _scaffold --template vanilla-ts
+rm -rf _scaffold/src/counter.ts _scaffold/src/assets _scaffold/public
+mv _scaffold/.gitignore _scaffold/index.html _scaffold/package.json \
+   _scaffold/tsconfig.json _scaffold/src .
+rmdir _scaffold
+pnpm add three
+pnpm add -D @types/three
+```
+
+**カレントディレクトリを直接指定しないこと。** このリポジトリは空ではない
+ため、`pnpm create vite .` は対話プロンプトを出す。非対話の環境では何も
+生成されないまま `Operation cancelled` で正常終了するので気付きにくい。
+`_scaffold` の `public/` を消しているのは、既にある `public/favicon.png` と
+衝突させないため。理由の詳細は手順書 2〜3 章。
+
+その後、手順書 5 章のコードで `index.html` / `src/style.css` /
+`src/main.ts` を置き換え、`src/scene.ts` を新規作成する。
+
+バージョンは固定していない。`pnpm add` はその時点の最新を入れるため、手順書が
+前提とするバージョンとはずれうる。**生成が済んだら手順書 10 章の確認コマンドを
+実行し、冒頭の「検証済みバージョン」表と比べること。** ずれていたら 10 章の表が
+「どの章を見直せばよいか」を示す。差分があれば手順書側を直す。
+
+生成された `pnpm-lock.yaml` は**このリポジトリでコミットする**。three は
+マイナーバージョンで破壊的変更を入れるため、ロックしないと clone した環境で
+動かなくなる。
+
+## 構成
+
+生成後は次のようになる。実装が進んだらこの節を実物に合わせて更新すること。
+
+- `index.html` — canvas、favicon、エントリスクリプトの読み込み
+- `src/main.ts` — エントリポイント。シーンの生成（HMR はフルリロード前提）
+- `src/scene.ts` — Three.js シーン本体。`createScene()` が `dispose()` を返す
+- `src/style.css` — 全画面 canvas のスタイル
+- `vite.config.ts` は作らない（デフォルト設定のまま。理由は手順書 4 章）
+
+## コマンド
+
+```bash
+pnpm dev      # 開発サーバー (http://localhost:5173)
+pnpm build    # tsc の型チェック + 本番ビルド → dist/
+pnpm preview  # ビルド結果のプレビュー
+```
+
+## 環境構築とその根拠
+
+この構成の作り方、および踏むと壊れる箇所（HMR の前提、ResizeObserver、
+three の import 形式、GPU リソースの解放、色空間）は
+[docs/webgl-setup-guide.md](docs/webgl-setup-guide.md) にまとめてある。
+シーンの初期化・破棄まわりを触る前に読むこと。
+
+表現を足していく過程で `geometry` / `material` / `texture` / `renderTarget` を
+増やしたら、その都度 `dispose()` の側にも 1 行足すこと（手順書 6.4）。
+片方だけ書いて忘れるのが典型的な事故。
+
+## 作品固有の設定
+
+生成直後は雛形の名前が残っている。手順書 8 章のチェックリストに沿って
+`package.json` の `name`、`index.html` の `<title>` と `lang`、`README.md`
+を作品に合わせて書き換えること。favicon はプレースホルダの
+`public/favicon.png` を正方形の画像に差し替える。
+
+## .gitignore
+
+Vite が生成した内容をそのまま使う。環境固有のエントリは先回りして足さず、
+実際に `git status` に現れてから理由を添えて足す。判断の根拠は手順書 8 章。
+
+## コミットメッセージ
+
+日本語で書く。規約は [.cursor/rules/commit-message.mdc](.cursor/rules/commit-message.mdc)
+を参照（Cursor 用の形式だが、内容はこのリポジトリ共通の規約）。
+
+## コメントの方針
+
+「なぜその値・その手段なのか」を書く。特に数値定数は、それが何の実測値から
+導かれたか、動かすと何が起きるかを残す。既存コードの水準に合わせること。
